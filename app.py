@@ -83,5 +83,10 @@ def getSemesters():
     sem = stdb3.get_semesters()
     return jsonify({"semesters":sem})
 
+@app.route('/usn/<email>')
+def getUsn(email):
+    usn = stdb3.get_student_usn(email)
+    return jsonify({"usn":usn})
+
 if __name__ == "__main__":
     app.run(port=8088,debug=True)

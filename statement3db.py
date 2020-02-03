@@ -25,3 +25,15 @@ def get_semesters():
         res = x["sems"]
     #print(res)
     return res
+
+def get_student_usn(email):
+    collection = db.dhi_user
+    usn = collection.aggregate([
+        {"$match":{"email":email}},
+        {"$project":{"_id":0,"usn":1}}
+    ])
+    res = []
+    for x in usn:
+        res = x["usn"]
+    #print(res)
+    return res
