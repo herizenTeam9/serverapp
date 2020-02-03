@@ -40,12 +40,11 @@ def get_student_usn(email):
     #print(res)
     return res
 
-
-def get_student_placment_offers(term, usn):
+def get_student_placment_offers(usn):
     collection=db.pms_placement_student_details
     offers = collection.aggregate([
         {"$unwind":"$studentList"},
-        {"$match":{"studentList.regNo":usn,"academicYear":term}},
+        {"$match":{"studentList.regNo":usn}},
         {"$project":{"companyName":1,"salary":1,"_id":0}}
     ])
     res = []
@@ -53,15 +52,17 @@ def get_student_placment_offers(term, usn):
         res.append(x)
     # print(res)
     return res
-def get_attendence(term,usn,sem):
+def get_attendence(usn,sem):
     collection = db.dhi_student_attendance
     attendence = collection.aggregate([
             {"$match":{"students.usn":usn}},
             {"$unwind":"$departments"},
             {"$unwind":"$students"},
-            {"$match":{"students.usn":usn,"departments.termName":sem,"academicYear":term}},
+            {"$match":{"students.usn":usn,"departments.termName":sem,}},
             {"$project":{"total_classes":"$students.totalNumberOfClasses","present":"$students.presentCount","absent":"$students.absentCount",
-            "percentage":"$students.percentage","_id":0,"courseCode":1,"courseName":1}}
+            "percentage":"$students.percentage","_id":0,"courseCode":1,"courseName":1}},
+            {"$match":{"students.usn":usn,"departments.termName":sem}},
+            {"$project":{"total_classes":"$students.totalNumberOfClasses","present":"$students.presentCount","absent":"$students.absentCount","percentage":"$students.percentage","_id":0,"courseCode":1,"courseName":1}}
         ])
     res = []
     for x in attendence:
@@ -76,6 +77,7 @@ def get_ia_marks(term, usn,sem,subject):
         {"$match":{"studentScores.usn":usn,"departments.termName":sem,"courseName":subject}},
         {"$unwind":"$studentScores"},
         {"$match":{"studentScores.usn":usn,"academicYear":term}},
+        {"$match":{"studentScores.usn":usn}},
         {"$project":{"obtained":"$studentScores.totalScore","outof":"$evaluationParameters.collegeMaxMarks","iaNumber":1,"courseName":1,"courseCode":1,"_id":0}},
         ])
     res = []
@@ -84,12 +86,14 @@ def get_ia_marks(term, usn,sem,subject):
     #pp.pprint(res)
     return res
 #get_ia_marks("2017-18","4MT16CS105","Semester 3")
+
 def get_ia_marks_total(term, usn,sem):
     collection = db.dhi_internal
     scores = collection.aggregate([
         {"$match":{"studentScores.usn":usn,"departments.termName":sem}},
         {"$unwind":"$studentScores"},
         {"$match":{"studentScores.usn":usn,"academicYear":term}},
+        {"$match":{"studentScores.usn":usn}},
         {"$project":{"obtained":"$studentScores.totalScore","outof":"$evaluationParameters.collegeMaxMarks","iaNumber":1,"courseName":1,"courseCode":1,"_id":0}},
         {"$group":{"_id":"$courseName","max":{"$sum":"$outof"},"got":{"$sum":"$obtained"},"courseCode":{"$first":"$courseCode"}}},
         {"$project":{"courseName":"$_id","courseCode":1,"max":1,"got":1,"_id":0}}
@@ -100,6 +104,7 @@ def get_ia_marks_total(term, usn,sem):
     #pp.pprint(res)
     return res
 #get_ia_marks_total("2017-18","4MT16CS105","Semester 4")
+#get_ia_marks_total("4MT16CS105","Semester 4")
 
 def get_emp_id(email):
     collection = db.dhi_user
@@ -188,4 +193,6 @@ def get_placed_details(usn):
     return len(res)
 #get_emp_subjects_ia_wise("CIV598","2017-18","Semester 3")
 #get_emp_sub_placement("CSE638","INFORMATION AND NETWORK SECURITY","2017-18","Semester 8")
+
+    
 

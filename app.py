@@ -4,7 +4,6 @@ from flask_pymongo import PyMongo
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity, get_jwt_claims
-
 )
 import statement3db as stdb3
 app = Flask(__name__)
@@ -89,31 +88,26 @@ def getUsn(email):
     usn = stdb3.get_student_usn(email)
     return jsonify({"usn":usn})
 
-
-@app.route('/placement/<term>/<usn>')
-def getOffers(term,usn):
-    offers = stdb3.get_student_placment_offers(term,usn)
+@app.route('/placement/<usn>')
+def getOffers(usn):
+    offers = stdb3.get_student_placment_offers(usn)
     return jsonify({"offers":offers})
 
-@app.route('/attendence/<term>/<usn>/<sem>')
-def getAttendence(term,usn,sem):
-    attendence = stdb3.get_attendence(term,usn,sem)
+@app.route('/attendence/<usn>/<sem>')
+def getAttendence(usn,sem):
+    attendence = stdb3.get_attendence(usn,sem)
     return jsonify({"attendence":attendence})
 
-@app.route('/internals/<term>/<usn>/<sem>/<subject>')
-def getIAMarks(term, usn, sem,subject):
-    iaMarks = stdb3.get_ia_marks(term, usn, sem,subject)
+@app.route('/internals/<usn>/<sem>')
+def getIAMarks(usn, sem):
+    iaMarks = stdb3.get_ia_marks(usn, sem)
     return jsonify({"marks":iaMarks})
 
-@app.route('/internals/total/<term>/<usn>/<sem>')
-def getIAMarksTotal(term,usn, sem):
-    iaMarks = stdb3.get_ia_marks_total(term, usn, sem)
+@app.route('/internals/total/<usn>/<sem>')
+def getIAMarksTotal(usn, sem):
+    iaMarks = stdb3.get_ia_marks_total(usn, sem)
     return jsonify({"marks":iaMarks})
 
-@app.route('/empid/<email>')
-def getEmpID(email):
-    empID = stdb3.get_emp_id(email)
-    return jsonify({"empid":empID})
 
 if __name__ == "__main__":
     app.run(port=8088,debug=True)
