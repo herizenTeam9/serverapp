@@ -6,6 +6,7 @@ from flask_jwt_extended import (
     get_jwt_identity, get_jwt_claims
 
 )
+import statement3db as stdb3
 app = Flask(__name__)
 CORS(app)
 
@@ -71,6 +72,12 @@ def protected():
         'roles': get_jwt_claims()['roles'] ,
         }
     return jsonify(ret), 200
+
+@app.route('/academicyear')
+def getacademicyear():
+    year=stdb3.get_academic_year()
+    #return jsonify({"check": 1}), 200
+    return jsonify({"year":year})
 
 
 if __name__ == "__main__":
