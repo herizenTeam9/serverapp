@@ -76,9 +76,12 @@ def protected():
 @app.route('/academicyear')
 def getacademicyear():
     year=stdb3.get_academic_year()
-    #return jsonify({"check": 1}), 200
     return jsonify({"year":year})
 
+@app.route('/semesters')
+def getSemesters():
+    sem = stdb3.get_semesters()
+    return jsonify({"semesters":sem})
 
 if __name__ == "__main__":
     app.run(port=8088,debug=True)
