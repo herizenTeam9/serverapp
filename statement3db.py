@@ -58,9 +58,12 @@ def get_attendence(usn,sem):
             {"$match":{"students.usn":usn}},
             {"$unwind":"$departments"},
             {"$unwind":"$students"},
+<<<<<<< HEAD
             {"$match":{"students.usn":usn,"departments.termName":sem,}},
             {"$project":{"total_classes":"$students.totalNumberOfClasses","present":"$students.presentCount","absent":"$students.absentCount",
             "percentage":"$students.percentage","_id":0,"courseCode":1,"courseName":1}},
+=======
+>>>>>>> changed stuffs
             {"$match":{"students.usn":usn,"departments.termName":sem}},
             {"$project":{"total_classes":"$students.totalNumberOfClasses","present":"$students.presentCount","absent":"$students.absentCount","percentage":"$students.percentage","_id":0,"courseCode":1,"courseName":1}}
         ])
@@ -71,12 +74,19 @@ def get_attendence(usn,sem):
     #pp.pprint(res)
     return res
 
+<<<<<<< HEAD
 def get_ia_marks(term, usn,sem,subject):
+=======
+def get_ia_marks(usn,sem):
+>>>>>>> changed stuffs
     collection = db.dhi_internal
     scores = collection.aggregate([
         {"$match":{"studentScores.usn":usn,"departments.termName":sem,"courseName":subject}},
         {"$unwind":"$studentScores"},
+<<<<<<< HEAD
         {"$match":{"studentScores.usn":usn,"academicYear":term}},
+=======
+>>>>>>> changed stuffs
         {"$match":{"studentScores.usn":usn}},
         {"$project":{"obtained":"$studentScores.totalScore","outof":"$evaluationParameters.collegeMaxMarks","iaNumber":1,"courseName":1,"courseCode":1,"_id":0}},
         ])
@@ -87,12 +97,19 @@ def get_ia_marks(term, usn,sem,subject):
     return res
 #get_ia_marks("2017-18","4MT16CS105","Semester 3")
 
+<<<<<<< HEAD
 def get_ia_marks_total(term, usn,sem):
+=======
+def get_ia_marks_total(usn,sem):
+>>>>>>> changed stuffs
     collection = db.dhi_internal
     scores = collection.aggregate([
         {"$match":{"studentScores.usn":usn,"departments.termName":sem}},
         {"$unwind":"$studentScores"},
+<<<<<<< HEAD
         {"$match":{"studentScores.usn":usn,"academicYear":term}},
+=======
+>>>>>>> changed stuffs
         {"$match":{"studentScores.usn":usn}},
         {"$project":{"obtained":"$studentScores.totalScore","outof":"$evaluationParameters.collegeMaxMarks","iaNumber":1,"courseName":1,"courseCode":1,"_id":0}},
         {"$group":{"_id":"$courseName","max":{"$sum":"$outof"},"got":{"$sum":"$obtained"},"courseCode":{"$first":"$courseCode"}}},
@@ -153,6 +170,7 @@ def get_emp_subjects_ia_wise(empid,term,sem):
     "courseCode":{"$first":"$courseCode"},"courseName":{"$first":"$courseName"}}},
     {"$project":{"_id":0,"iaNumber":"$_id.iaNumber","courseCode":1}}
     ])
+<<<<<<< HEAD
     res = []
     for mark in marks:
         res.append(mark)
@@ -194,5 +212,7 @@ def get_placed_details(usn):
 #get_emp_subjects_ia_wise("CIV598","2017-18","Semester 3")
 #get_emp_sub_placement("CSE638","INFORMATION AND NETWORK SECURITY","2017-18","Semester 8")
 
+=======
+>>>>>>> changed stuffs
     
 
