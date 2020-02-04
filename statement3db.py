@@ -1,4 +1,5 @@
 from pymongo import MongoClient
+import pprint as pp
 url="mongodb://localhost:27017/"
 client=MongoClient(url)
 db=client.dhi_analytics
@@ -54,7 +55,7 @@ def get_student_placment_offers(term, usn):
 def get_attendence(term,usn,sem):
     collection = db.dhi_student_attendance
     attendence = collection.aggregate([
-            {"$match":{"students.usn":usn,}},
+            {"$match":{"students.usn":usn}},
             {"$unwind":"$departments"},
             {"$unwind":"$students"},
             {"$match":{"students.usn":usn,"departments.termName":sem,"academicYear":term}},
@@ -63,9 +64,9 @@ def get_attendence(term,usn,sem):
     res = []
     for x in attendence:
         res.append(x)
-    #pprint.pprint(res)
-    return res
-
+    pp.pprint(res)
+    #return res
+get_attendence("2017-18","4MT16CS105","Semester 4")
 def get_ia_marks(term, usn,sem):
     collection = db.dhi_internal
     scores = collection.aggregate([
@@ -109,11 +110,46 @@ def get_emp_id(email):
     #print(res)
     return res
 
-def get_employee_():
-    collection = db.dhi_student_attendance
-    subjects = collection('dhi_student_attendance').aggregate([
-    {"$match":{"faculties.employeeGivenId":"MEC625","academicYear":"2017-18"}},
+# def get_employee_():
+#     collection = db.dhi_student_attendance
+#     subjects = collection('dhi_student_attendance').aggregate([
+#     {"$match":{"faculties.employeeGivenId":"MEC625","academicYear":"2017-18"}},
+#     {"$unwind":"$departments"},
+#     {"$match":{"departments.termName":"Semester 4"}},
+#     {"$project":{"students":{"$size":"$students"},"_id":0,"courseCode":1,"courseName":1}}
+#     ])
+
+def get_emp_subjects(empid,term,sem):
+    collection = db.dhi_internal
+    marks = collection.aggregate([
+    {"$match":{"faculties.facultyGivenId":empid,"academicYear":term,"departments.termName":sem}},
     {"$unwind":"$departments"},
-    {"$match":{"departments.termName":"Semester 4"}},
-    {"$project":{"students":{"$size":"$students"},"_id":0,"courseCode":1,"courseName":1}}
+    {"$unwind":"$studentScores"},
+    {"$match":{"studentScores.totalScore":{"$gt":0}}},
+    {"$group":{"_id":"$courseCode","totalMarks":{"$sum":"$studentScores.totalScore"},"maxMarks":{"$sum":"$evaluationParameters.collegeMaxMarks"},
+    "courseCode":{"$first":"$courseCode"},"courseName":{"$first":"$courseName"}}}
     ])
+    res = []
+    for mark in marks:
+        res.append(mark)
+    pp.pprint(res)
+
+def get_emp_subjects_ia_wise(empid,term,sem):
+    collection = db.dhi_internal
+    marks = collection.aggregate([
+    {"$match":{"faculties.facultyGivenId":empid,"academicYear":term,"departments.termName":sem}},
+    {"$unwind":"$departments"},
+    {"$unwind":"$studentScores"},
+    {"$match":{"studentScores.totalScore":{"$gt":0}}},
+    {"$group":{"_id":{"iaNumber":"$iaNumber","courseCode":"$courseCode"},"totalMarks":{"$sum":"$studentScores.totalScore"},"maxMarks":{"$sum":"$evaluationParameters.collegeMaxMarks"},
+    "courseCode":{"$first":"$courseCode"},"courseName":{"$first":"$courseName"}}},
+    {"$project":{"_id":0,"iaNumber":"$_id.iaNumber","courseCode":1}}
+    ])
+    res = []
+    for mark in marks:
+        res.append(mark)
+    pp.pprint(res)
+#get_emp_subjects_ia_wise("CIV598","2017-18","Semester 3")
+
+
+
