@@ -88,5 +88,31 @@ def getUsn(email):
     usn = stdb3.get_student_usn(email)
     return jsonify({"usn":usn})
 
+
+@app.route('/placement/<term>/<usn>')
+def getOffers(term,usn):
+    offers = stdb3.get_student_placment_offers(term,usn)
+    return jsonify({"offers":offers})
+
+@app.route('/attendence/<term>/<usn>/<sem>')
+def getAttendence(term,usn,sem):
+    attendence = stdb3.get_attendence(term,usn,sem)
+    return jsonify({"attendence":attendence})
+
+@app.route('/internals/<term>/<usn>/<sem>')
+def getIAMarks(term, usn, sem):
+    iaMarks = stdb3.get_ia_marks(term, usn, sem)
+    return jsonify({"marks":iaMarks})
+
+@app.route('/internals/total/<term>/<usn>/<sem>')
+def getIAMarksTotal(term,usn, sem):
+    iaMarks = stdb3.get_ia_marks_total(term, usn, sem)
+    return jsonify({"marks":iaMarks})
+
+@app.route('/empid/<email>')
+def getEmpID(email):
+    empID = stdb3.get_emp_id(email)
+    return jsonify({"empid":empID})
+
 if __name__ == "__main__":
     app.run(port=8088,debug=True)
