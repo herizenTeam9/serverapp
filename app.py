@@ -75,6 +75,7 @@ def protected():
 @app.route('/academicyear')
 def getacademicyear():
     year=stdb3.get_academic_year()
+    year.sort()
     return jsonify({"year":year})
 
 @app.route('/semesters')
@@ -90,7 +91,7 @@ def getUsn(email):
 
 @app.route('/placement/<term>/<usn>')
 def getOffers(term,usn):
-    offers = stdb3.get_student_placment_offers(term,usn)
+    offers = stdb3.get_student_placment_offers(usn)
     return jsonify({"offers":offers})
 
 @app.route('/attendence/<term>/<usn>/<sem>')

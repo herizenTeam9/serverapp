@@ -52,12 +52,13 @@ def get_student_placment_offers(usn):
         res.append(x)
     # print(res)
     return res
-def get_attendence(usn,sem):
+def get_attendence(term,usn,sem):
     collection = db.dhi_student_attendance
     attendence = collection.aggregate([
             {"$match":{"students.usn":usn}},
             {"$unwind":"$departments"},
             {"$unwind":"$students"},
+<<<<<<< HEAD
 <<<<<<< HEAD
             {"$match":{"students.usn":usn,"departments.termName":sem,}},
             {"$project":{"total_classes":"$students.totalNumberOfClasses","present":"$students.presentCount","absent":"$students.absentCount",
@@ -65,12 +66,16 @@ def get_attendence(usn,sem):
 =======
 >>>>>>> changed stuffs
             {"$match":{"students.usn":usn,"departments.termName":sem}},
+=======
+            {"$match":{"students.usn":usn,"departments.termName":sem,"academicYear":term}},
+>>>>>>> 1
             {"$project":{"total_classes":"$students.totalNumberOfClasses","present":"$students.presentCount","absent":"$students.absentCount","percentage":"$students.percentage","_id":0,"courseCode":1,"courseName":1}}
         ])
     res = []
     for x in attendence:
         if x not in res:
             res.append(x)
+<<<<<<< HEAD
     #pp.pprint(res)
     return res
 
@@ -79,6 +84,12 @@ def get_ia_marks(term, usn,sem,subject):
 =======
 def get_ia_marks(usn,sem):
 >>>>>>> changed stuffs
+=======
+    #pprint.pprint(res)
+    return res
+
+def get_ia_marks(term,usn,sem):
+>>>>>>> 1
     collection = db.dhi_internal
     scores = collection.aggregate([
         {"$match":{"studentScores.usn":usn,"departments.termName":sem,"courseName":subject}},
@@ -98,10 +109,14 @@ def get_ia_marks(usn,sem):
 #get_ia_marks("2017-18","4MT16CS105","Semester 3")
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 def get_ia_marks_total(term, usn,sem):
 =======
 def get_ia_marks_total(usn,sem):
 >>>>>>> changed stuffs
+=======
+def get_ia_marks_total(term,usn,sem):
+>>>>>>> 1
     collection = db.dhi_internal
     scores = collection.aggregate([
         {"$match":{"studentScores.usn":usn,"departments.termName":sem}},
@@ -216,3 +231,45 @@ def get_placed_details(usn):
 >>>>>>> changed stuffs
     
 
+def get_emp_sub_placement(empID,sub,term,sem):
+    collection = db.dhi_student_attendance
+    students = collection.aggregate([
+        {"$match":{"academicYear":term,"faculties.employeeGivenId" : empID,"departments.termName":sem,"courseName":sub}},
+        {"$unwind":"$students"},
+        {"$group":{"_id":"$courseName","studentUSNs":{"$addToSet":"$students.usn"}}},
+    ])
+    res = []
+    for x in students:
+        res.append(x)
+        print(x)
+    print("res",res)
+    filtered = []
+    for x in res:
+        studentlst = get_placed_student_usns( x["studentUSNs"])
+        filtered.append({"courseName":x["_id"],"usns":studentlst})
+    print("filtered",filtered)
+
+
+def get_placed_student_usns(usnList):
+    collection = db.pms_placement_student_details
+    people = collection.aggregate([
+    {"$unwind":"$studentList"},
+    {"$project":{"student":{"$cond":{"if":{"$in":["$studentList.regNo",usnList]},"then":"$studentList.regNo","else":"null"}}}},
+    {"$project":{"student":{"$not":{"student":"null"}}}}
+    ])
+    res = []
+    for x in people:
+        res.append(x)
+    return res
+
+get_emp_sub_placement("CSE638","INFORMATION AND NETWORK SECURITY","2017-18","Semester 8")
+
+#dump
+
+db.getCollection('pms_placement_student_details').aggregate([
+{$unwind:"$studentList"},
+//{$group:{"_id":null,"placedStudents":{}}}
+{$project:{"student":{$cond:{if:{$in:["$studentList.regNo",people]},then:"$studentList.regNo",else:""}}}},
+//{$match:{$ne:["$student",""]}},
+{$group:{"_id":null,"students":{$push:{$ne:["$student",""]}}}}
+])
