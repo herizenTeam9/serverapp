@@ -4,6 +4,7 @@ from flask_pymongo import PyMongo
 from flask_jwt_extended import (
     JWTManager, jwt_required, create_access_token,
     get_jwt_identity, get_jwt_claims
+
 )
 import statement3db as stdb3
 app = Flask(__name__)
@@ -75,7 +76,6 @@ def protected():
 @app.route('/academicyear')
 def getacademicyear():
     year=stdb3.get_academic_year()
-    year.sort()
     return jsonify({"year":year})
 
 @app.route('/semesters')
@@ -89,9 +89,10 @@ def getUsn(email):
     usn = stdb3.get_student_usn(email)
     return jsonify({"usn":usn})
 
+
 @app.route('/placement/<term>/<usn>')
 def getOffers(term,usn):
-    offers = stdb3.get_student_placment_offers(usn)
+    offers = stdb3.get_student_placment_offers(term,usn)
     return jsonify({"offers":offers})
 
 @app.route('/attendence/<term>/<usn>/<sem>')
@@ -99,9 +100,9 @@ def getAttendence(term,usn,sem):
     attendence = stdb3.get_attendence(term,usn,sem)
     return jsonify({"attendence":attendence})
 
-@app.route('/internals/<term>/<usn>/<sem>')
-def getIAMarks(term, usn, sem):
-    iaMarks = stdb3.get_ia_marks(term, usn, sem)
+@app.route('/internals/<term>/<usn>/<sem>/<subject>')
+def getIAMarks(term, usn, sem,subject):
+    iaMarks = stdb3.get_ia_marks(term, usn, sem,subject)
     return jsonify({"marks":iaMarks})
 
 @app.route('/internals/total/<term>/<usn>/<sem>')
