@@ -100,9 +100,9 @@ def getAttendence(term,usn,sem):
     attendence = stdb3.get_attendence(term,usn,sem)
     return jsonify({"attendence":attendence})
 
-@app.route('/internals/<term>/<usn>/<sem>')
-def getIAMarks(term, usn, sem):
-    iaMarks = stdb3.get_ia_marks(term, usn, sem)
+@app.route('/internals/<term>/<usn>/<sem>/<subject>')
+def getIAMarks(term, usn, sem,subject):
+    iaMarks = stdb3.get_ia_marks(term, usn, sem,subject)
     return jsonify({"marks":iaMarks})
 
 @app.route('/internals/total/<term>/<usn>/<sem>')

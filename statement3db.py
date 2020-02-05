@@ -70,10 +70,10 @@ def get_attendence(term,usn,sem):
     #pp.pprint(res)
     return res
 
-def get_ia_marks(term, usn,sem):
+def get_ia_marks(term, usn,sem,subject):
     collection = db.dhi_internal
     scores = collection.aggregate([
-        {"$match":{"studentScores.usn":usn,"departments.termName":sem}},
+        {"$match":{"studentScores.usn":usn,"departments.termName":sem,"courseName":subject}},
         {"$unwind":"$studentScores"},
         {"$match":{"studentScores.usn":usn,"academicYear":term}},
         {"$project":{"obtained":"$studentScores.totalScore","outof":"$evaluationParameters.collegeMaxMarks","iaNumber":1,"courseName":1,"courseCode":1,"_id":0}},
