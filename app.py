@@ -81,6 +81,7 @@ def getacademicyear():
 @app.route('/semesters')
 def getSemesters():
     sem = stdb3.get_semesters()
+    sem.sort()
     return jsonify({"semesters":sem})
 
 @app.route('/usn/<email>')
