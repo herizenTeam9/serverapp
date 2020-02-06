@@ -115,5 +115,33 @@ def getEmpID(email):
     empID = stdb3.get_emp_id(email)
     return jsonify({"empid":empID})
 
+@app.route('/depts')
+def getAllDept():
+    depts = stdb3.get_all_depts()
+    return jsonify({"depts":depts})
+
+@app.route('/emps/<dept>')
+def getEmpByDept(dept):
+    emps = stdb3.get_faculties_by_dept(dept)
+    return jsonify({"faculties":emps})
+@app.route('/emp/ia/total/<empid>/<term>/<sem>')
+def getEmpIaTotalMarks(empid,term,sem):
+    iamarks = stdb3.get_emp_subjects(empid,term,sem)
+    return jsonify({"iamarks":iamarks})
+
+@app.route('/emp/ia/<empid>/<term>/<sem>/<subject>')
+def getEmpIaMarks(empid,term,sem,subject):
+    iamarks = stdb3.get_emp_subjects_ia_wise(empid,term,sem,subject)
+    return jsonify({"iamarks":iamarks})
+@app.route('/emp/placement/<empid>/<sem>/<sub>')
+def getSubPlacement(empid,sem,sub):
+    details = stdb3.get_emp_sub_placement(empid,sub,sem)
+    return jsonify({
+        "courseCode":sub,
+        "totalStudents" : details[0],
+        "placedStudents": details[1],
+        "totalPositions": details[2]
+    })
+    
 if __name__ == "__main__":
     app.run(port=8088,debug=True)

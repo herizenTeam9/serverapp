@@ -136,7 +136,7 @@ def get_emp_id(email):
 #     ])
 
 
-#returns the subjects,marks handled by the faculty of empID 
+#returns the subjects,total marks handled by the faculty of empID 
 def get_emp_subjects(empid,term,sem):
     collection = db.dhi_internal
     marks = collection.aggregate([
@@ -145,51 +145,55 @@ def get_emp_subjects(empid,term,sem):
     {"$unwind":"$studentScores"},
     {"$match":{"studentScores.totalScore":{"$gt":0}}},
     {"$group":{"_id":"$courseCode","totalMarks":{"$sum":"$studentScores.totalScore"},"maxMarks":{"$sum":"$evaluationParameters.collegeMaxMarks"},
-    "courseCode":{"$first":"$courseCode"},"courseName":{"$first":"$courseName"}}}
+    "courseCode":{"$first":"$courseCode"},"courseName":{"$first":"$courseName"}}},
+    {"$project":{"_id":0}}
     ])
     res = []
     for mark in marks:
         res.append(mark)
-    pp.pprint(res)
-
+    return res
+    
+#get_emp_subjects("CIV598","2017-18","Semester 3")
 #returns ia wise of a subject
-def get_emp_subjects_ia_wise(empid,term,sem):
+def get_emp_subjects_ia_wise(empid,term,sem,subject):
     collection = db.dhi_internal
     marks = collection.aggregate([
-    {"$match":{"faculties.facultyGivenId":empid,"academicYear":term,"departments.termName":sem}},
+    {"$match":{"faculties.facultyGivenId":empid,"academicYear":term,"departments.termName":sem,"courseCode":subject}},
     {"$unwind":"$departments"},
     {"$unwind":"$studentScores"},
     {"$match":{"studentScores.totalScore":{"$gt":0}}},
     {"$group":{"_id":{"iaNumber":"$iaNumber","courseCode":"$courseCode"},"totalMarks":{"$sum":"$studentScores.totalScore"},"maxMarks":{"$sum":"$evaluationParameters.collegeMaxMarks"},
     "courseCode":{"$first":"$courseCode"},"courseName":{"$first":"$courseName"}}},
-    {"$project":{"_id":0,"iaNumber":"$_id.iaNumber","courseCode":1}}
+    {"$project":{"_id":0,"iaNumber":"$_id.iaNumber","courseCode":1,"courseName":1,"maxMarks":1,"totalMarks":1}}
     ])
     res = []
     for mark in marks:
         res.append(mark)
-    pp.pprint(res)
-
+    # pp.pprint(res)
+    return res
+#get_emp_subjects_ia_wise("CIV598","2017-18","Semester 3")
 #placement details of a class handled by empID
-def get_emp_sub_placement(empID,sub,term,sem):
+def get_emp_sub_placement(empID,sub,sem):
     collection = db.dhi_student_attendance
     students = collection.aggregate([
-        {"$match":{"academicYear":term,"faculties.employeeGivenId" : empID,"departments.termName":sem,"courseName":sub}},
+        {"$match":{"faculties.employeeGivenId" : empID,"departments.termName":sem,"courseName":sub}},
         {"$unwind":"$students"},
         {"$group":{"_id":"$courseName","studentUSNs":{"$addToSet":"$students.usn"}}},
     ])
     res = []
     for x in students:
         res.append(x)
-    
+    totalStudents = 0
     filtered = []
     for x in res:
         for usn in x["studentUSNs"]:
             status = get_placed_details(usn)
             if status!=0:
                 filtered.append(status)
+            totalStudents = len(x["studentUSNs"])
     # print("filtered",filtered)
     # print(f"Placed Students :{len(filtered)},No.of Offers : {sum(filtered)}")
-    return (len(filtered),sum(filtered))
+    return (totalStudents,len(filtered),sum(filtered))
 
 #returns no of placement offers obtained by a student of passed usn
 def get_placed_details(usn):
