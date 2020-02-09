@@ -95,10 +95,6 @@ def getOffers(term,usn):
     offers = stdb3.get_student_placment_offers(term,usn)
     return jsonify({"offers":offers})
 
-@app.route('/attendence/<term>/<usn>/<sem>')
-def getAttendence(term,usn,sem):
-    attendence = stdb3.get_attendence(term,usn,sem)
-    return jsonify({"attendence":attendence})
 
 @app.route('/internals/<term>/<usn>/<sem>/<subject>')
 def getIAMarks(term, usn, sem,subject):

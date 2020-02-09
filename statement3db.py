@@ -150,6 +150,15 @@ def get_emp_subjects(empid,term,sem):
     ])
     res = []
     for mark in marks:
+        place = get_emp_sub_placement(empid,mark['courseName'],sem)
+        if mark['maxMarks'] != 0:
+            mark['iaPercentage'] = 100 * mark['totalMarks'] / mark['maxMarks'] 
+        else:
+            mark['iaPercentage'] = 0
+        if place[0] != 0:
+            mark['placePercentage'] = 100 * place[1] / place[0]
+        else:
+            mark['placePercentage'] = 0
         res.append(mark)
     return res
     
@@ -157,21 +166,21 @@ def get_emp_subjects(empid,term,sem):
 #returns ia wise of a subject
 def get_emp_subjects_ia_wise(empid,term,sem,subject):
     collection = db.dhi_internal
+    print(subject)
     marks = collection.aggregate([
-    {"$match":{"faculties.facultyGivenId":empid,"academicYear":term,"departments.termName":sem,"courseCode":subject}},
-    {"$unwind":"$departments"},
+    {"$match":{"faculties.facultyGivenId":"CIV505","courseName":"ADVANCED CONCRETE TECHNOLOGY","academicYear":"2017-18","departments.termName":"Semester 8"}},
     {"$unwind":"$studentScores"},
     {"$match":{"studentScores.totalScore":{"$gt":0}}},
     {"$group":{"_id":{"iaNumber":"$iaNumber","courseCode":"$courseCode"},"totalMarks":{"$sum":"$studentScores.totalScore"},"maxMarks":{"$sum":"$evaluationParameters.collegeMaxMarks"},
-    "courseCode":{"$first":"$courseCode"},"courseName":{"$first":"$courseName"}}},
-    {"$project":{"_id":0,"iaNumber":"$_id.iaNumber","courseCode":1,"courseName":1,"maxMarks":1,"totalMarks":1}}
+    "courseCode":{"$first":"$courseCode"},"courseName":{"$first":"$courseName"},"students":{"$sum":1},}},
+    {"$project":{"_id":0,"iaNumber":"$_id.iaNumber","courseCode":1,"courseName":1,"maxMarks":1,"totalMarks":1,"students":1}},
+    {"$sort":{"iaNumber":1}}
     ])
     res = []
     for mark in marks:
         res.append(mark)
-    # pp.pprint(res)
     return res
-#get_emp_subjects_ia_wise("CIV598","2017-18","Semester 3")
+#get_emp_subjects_ia_wise("CSE480","2017-18","Semester 4","SOFTWARE ENGINEERING")
 #placement details of a class handled by empID
 def get_emp_sub_placement(empID,sub,sem):
     collection = db.dhi_student_attendance
@@ -239,7 +248,8 @@ def get_faculties_by_dept(dept):
     regex.flags ^= re.UNICODE 
     faculties = collection.aggregate([
         {"$match":{"roles.roleName":"FACULTY","employeeGivenId":{"$regex":regex}}},
-        {"$project":{"employeeGivenId":1,"name":1,"_id":0}}
+        {"$project":{"employeeGivenId":1,"name":1,"_id":0}},
+        {"$sort":{"name":1}}
     ])
     res = [f for f in faculties]
     return res
