@@ -120,6 +120,7 @@ def getAllDept():
 def getEmpByDept(dept):
     emps = stdb3.get_faculties_by_dept(dept)
     return jsonify({"faculties":emps})
+    
 @app.route('/emp/ia/total/<empid>/<term>/<sem>')
 def getEmpIaTotalMarks(empid,term,sem):
     iamarks = stdb3.get_emp_subjects(empid,term,sem)
