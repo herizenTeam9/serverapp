@@ -122,7 +122,8 @@ def get_emp_id(email):
     ])
     res = []
     for x in usn:
-        res = x["employeeGivenId"]
+        if "employeeGivenId" in x.keys():
+            res = x["employeeGivenId"]
     #print(res)
     return res
 
@@ -136,7 +137,7 @@ def get_emp_id(email):
 #     ])
 
 
-#returns the subjects,total marks handled by the faculty of empID 
+#returns the subjects,total marks, placement details for subject handled by the faculty of empID 
 def get_emp_subjects(empid,term,sem):
     collection = db.dhi_internal
     marks = collection.aggregate([
@@ -168,7 +169,7 @@ def get_emp_subjects_ia_wise(empid,term,sem,subject):
     collection = db.dhi_internal
     print(subject)
     marks = collection.aggregate([
-    {"$match":{"faculties.facultyGivenId":"CIV505","courseName":"ADVANCED CONCRETE TECHNOLOGY","academicYear":"2017-18","departments.termName":"Semester 8"}},
+    {"$match":{"faculties.facultyGivenId":empid,"courseName":subject,"academicYear":term,"departments.termName":sem}},
     {"$unwind":"$studentScores"},
     {"$match":{"studentScores.totalScore":{"$gt":0}}},
     {"$group":{"_id":{"iaNumber":"$iaNumber","courseCode":"$courseCode"},"totalMarks":{"$sum":"$studentScores.totalScore"},"maxMarks":{"$sum":"$evaluationParameters.collegeMaxMarks"},
